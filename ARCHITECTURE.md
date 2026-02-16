@@ -134,3 +134,46 @@ template-root/
 ---
 
 For further details, see each template's README and the main project README.
+
+---
+
+## CLI Architecture (Go)
+
+The AuthKit CLI is implemented in Go for cross-platform support and performance. It is responsible for:
+
+- Discovering available templates in `templates/`
+- Scaffolding new projects interactively (`authkit init`)
+- Listing templates (`authkit list`)
+- Showing template details (`authkit info <template>`)
+- Validating required tools (Go, Docker, etc.)
+- Never hardcoding or exposing secrets [OWASP:A3, A6]
+
+### Structure
+
+- `cli/main.go`: Entry point
+- `cli/cmd/`: Cobra-based subcommands (init, list, info, version)
+- `cli/internal/`: Template discovery, scaffolding, env validation
+
+### Adding/Extending CLI Features
+
+1. Add a new command in `cli/cmd/` (see Cobra docs)
+2. Add supporting logic in `cli/internal/` if needed
+3. Register the command in `root.go`
+4. Update `README.md` and this doc
+
+### Security
+
+- All file operations are sanitized to prevent path traversal [OWASP:A5]
+- User input is validated and never used directly in shell commands [OWASP:A1]
+- CLI warns users to set secrets in `.env` files, not in code
+
+### Testing
+
+- Unit tests for all internal logic
+- Integration tests for CLI commands (os/exec, temp dirs)
+
+### CI
+
+- Go build/test steps in `.github/workflows/ci.yml`
+
+See the README for usage and contributing guidelines.
