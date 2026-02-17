@@ -1,0 +1,39 @@
+# Root-level .gitignore for AuthKit monorepo
+# Node.js
+node_modules/
+.env
+.env.*
+*.log
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+# Python
+__pycache__/
+*.pyc
+*.pyo
+env/
+venv/
+.venv/
+# Go
+bin/
+*.exe
+*.test
+# Java
+*.class
+*.jar
+*.war
+*.iml
+# C#
+bin/
+obj/
+*.user
+*.suo
+# Monorepo/IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+# AuthKit generated projects
+dist/
+build/
+coverage/

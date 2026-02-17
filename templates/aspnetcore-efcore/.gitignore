@@ -1,0 +1,12 @@
+# ASP.NET Core + EF Core
+bin/
+obj/
+*.user
+*.suo
+.env
+.env.*
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

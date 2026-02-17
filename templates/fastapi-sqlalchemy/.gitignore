@@ -1,0 +1,15 @@
+# FastAPI + SQLAlchemy
+__pycache__/
+*.pyc
+*.pyo
+env/
+venv/
+.venv/
+.env
+.env.*
+*.log
+coverage/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

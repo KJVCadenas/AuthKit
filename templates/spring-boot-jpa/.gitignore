@@ -1,0 +1,13 @@
+# Spring Boot + JPA
+target/
+*.class
+*.jar
+*.war
+*.iml
+.env
+.env.*
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
