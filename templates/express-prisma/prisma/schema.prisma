@@ -1,0 +1,49 @@
+// Prisma schema for AuthKit Express/Prisma template
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  password       String
+  name           String
+  role           Role     @default(USER)
+  emailVerified  Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  refreshTokens  RefreshToken[]
+  verificationTokens VerificationToken[]
+}
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+model RefreshToken {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  revoked   Boolean  @default(false)
+  rotatedAt DateTime? // Timestamp when this token was rotated (optional, for advanced detection)
+  parentTokenId String? // For token chain tracking (optional)
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @unique
+  type      String   // 'email' or 'password-reset'
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}

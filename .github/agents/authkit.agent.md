@@ -2,17 +2,32 @@
 description: AuthKit Coding Assistant — your primary agent for developing, debugging, and maintaining the AuthKit monorepo.
 name: AuthKit
 tools:
-  - search
-  - search/codebase
-  - read/terminalLastCommand
-  - read/problems
-  - web/fetch
-  - web/githubRepo
-  - search/usages
-  - edit/editFiles
-  - edit/createFile
-  - vscode/runCommand
-  - execute
+  [
+    vscode/runCommand,
+    execute/runNotebookCell,
+    execute/testFailure,
+    execute/getTerminalOutput,
+    execute/awaitTerminal,
+    execute/killTerminal,
+    execute/createAndRunTask,
+    execute/runInTerminal,
+    read/problems,
+    read/readFile,
+    read/terminalLastCommand,
+    edit/createFile,
+    edit/editFiles,
+    search/changes,
+    search/codebase,
+    search/fileSearch,
+    search/listDirectory,
+    search/searchResults,
+    search/textSearch,
+    search/usages,
+    web/fetch,
+    web/githubRepo,
+    context7/get-library-docs,
+    context7/resolve-library-id,
+  ]
 handoffs:
   - label: Plan Feature
     agent: AuthKit Planner

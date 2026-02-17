@@ -1,0 +1,270 @@
+openapi: 3.1.0
+info:
+  title: AuthKit Express/Prisma API
+  version: 1.0.0
+  description: Secure authentication API with JWT, RBAC, and OWASP mitigations.
+  contact:
+    name: AuthKit Team
+    url: https://github.com/kurtbuilds/authkit
+servers:
+  - url: http://localhost:3000
+  - url: https://{baseUrl}
+    variables:
+      baseUrl:
+        default: api.example.com
+tags:
+  - name: Auth
+    description: Authentication and authorization endpoints
+  - name: Users
+    description: User management endpoints
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful. **JWTs are set in secure, HTTP-only cookies.**
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh JWT tokens
+      description: |
+        Rotates refresh token and issues new access/refresh tokens. Requires valid refreshToken cookie. Detects reuse and revokes all tokens if replayed.
+      responses:
+        '200':
+          description: New tokens set in cookies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          '401':
+            description: Invalid, expired, or reused refresh token. All sessions revoked on reuse detection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      description: |
+        Clears JWT cookies on the client.
+      responses:
+        '200':
+          description: Logged out, cookies cleared
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+  /auth/verify-email:
+    post:
+      tags: [Auth]
+      summary: Verify email with token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+      responses:
+        '200':
+          description: Email verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/request-password-reset:
+    post:
+      tags: [Auth]
+      summary: Request password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestPasswordResetRequest'
+      responses:
+        '200':
+          description: Email sent if user exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/reset-password:
+    put:
+      tags: [Auth]
+      summary: Complete password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid or expired token, or weak password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+  schemas:
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+          maxLength: 255
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+          example: Password123!
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: John Doe
+      required: [email, password, name]
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          example: Password123!
+      required: [email, password]
+    VerifyEmailRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        token:
+          type: string
+          minLength: 32
+          example: 123e4567-e89b-12d3-a456-426614174000
+      required: [email, token]
+    RequestPasswordResetRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+      required: [email]
+    ResetPasswordRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 32
+          example: 123e4567-e89b-12d3-a456-426614174000
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+          example: NewPassword123!
+      required: [token, password]
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Operation successful
+        data:
+          type: object
+          nullable: true
+      required: [message]
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Invalid email format
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
